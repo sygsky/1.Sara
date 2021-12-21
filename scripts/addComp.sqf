@@ -1,0 +1,1 @@
+(_this select 3) call addComputer2Majak;

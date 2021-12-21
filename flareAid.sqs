@@ -1,0 +1,78 @@
+;
+; call: [_pos, "Red"] exec "flareAid.sqs"
+;
+_pos = _this select 0
+_flrtp  = _this select 1
+
+player groupChat format["flareAid.sqs: pos %1, color %2",_pos, _flrtp]
+hint localize format["flareAid.sqs: pos %1, color %2",_pos, _flrtp]
+
+;_flr = nearestobject [_unit,_flrtp]
+
+;if you want to add flares from other addons, just add those flare ammo type names to this array. NAMES ARE CASE SENSITIVE!
+;if the projectile is not among these ammo types, then exit the script.
+_flrtyps = ["White","Green","Red","Yellow","Purple"]
+? ! (_flrtp in _flrtyps) : exit
+
+_getAlt = preprocessFile "getAlt.sqf"
+
+;determine flare type to create color for day visible drop item and smoke trail according to type of flare.
+? _flrtp == "White"  : _col = [1,1,1,1]; _c1 = [1,1,1,.1]; _c2 = [1,1,1,0]; _flrtp = "ACE_Flare_40mm_White"
+? _flrtp == "Red"    : _col = [1,0,0,1]; _c1 = [.8,.2,0,.1]; _c2 = [.8,.2,0,0]; _flrtp = "ACE_Flare_40mm_Red"
+? _flrtp == "Green"  : _col = [0,1,0,1]; _c1 = [.2,.8,.2,.1]; _c2 = [.2,.8,.2,0]; _flrtp = "ACE_Flare_40mm_Green"
+? _flrtp == "Yellow" : _col = [1,1,0,1]; _c1 = [.8,.8,0,.1]; _c2 = [.8,.8,0,0]; _flrtp = "ACE_Flare_40mm_Yellow"
+? _flrtp == "Purple" : _col = [1,0,1,1]; _c1 = [.8,0,.8,.1]; _c2 = [.8,0,.8,0]; _flrtp = "ACE_Flare_40mm_Purple"
+
+_flr = _flrtp createVehicle _pos
+
+? isNull _flr : player groupChat "flareAid.sqs: Can't create flare"; hint localize "flareAid.sqs: Can't create flare"
+
+;muzzel velocity multiplier (use value of 1 for default muzzel velocity)
+_vF = 1.6
+_flr setVelocity [ (velocity _flr select 0) * _vF, (velocity _flr select 1) * _vF, (velocity _flr select 2) * _vF]
+
+;set up time factors needed (especially important to recreate flares to simulate longer burn time)
+_tm1 = _time + 7
+_tm2 = _tm1 + 2.5
+
+;the script ends when the flare falls below this altitude
+_endAlt = 25
+
+;this is the speed in m/s at which the flare will fall. The normal flare falling speed in OFP is -7 m/s
+_zspd = -2.5
+~ 2
+_rt = _time
+
+#loop
+~ .01
+? (velocity _flr select 2) < _zspd : _flr setVelocity [velocity _flr select 0, velocity _flr select 1, _zspd]
+? _time >= _tm1 : _flrnew = _flrtp createVehicle [0,0,5000] ; _tm1 = _time + 8
+
+;the z position has to be adjusted against sea level altitude, since flare z position during createVehicle and SetPos are according to sea level not ground level
+;the getAlt function comes in handy for this.
+_pos = [getPos _flr select 0, getPos _flr select 1, (getPos _flr select 2) + (([_flr] call _getAlt) select 3)]; 
+;_pos = [getPos _flr select 0, getPos _flr select 1, getPos _flr select 2]; 
+_vel = velocity _flr
+
+? _time >= _tm2 : _flrnew setVelocity _vel ; deleteVehicle _flr; _flrnew setPos _pos ; _flr = _flrnew ; _tm2 = _tm1 + 2.5
+
+;drop day visible image (kouleSvetlo) and smoke trail (cl_basic)
+
+drop ["\Ca\Data\kouleSvetlo","","Billboard",1,(_time - _rt + .002),[0,0,0],[0,0,0],0,1.8,1,.1,[5],[_col],[0,1],0,0,"","",_flr];_rt = _time
+drop ["\Ca\Data\cl_basic","","Billboard",1,10,[0,0,0],[0,0,0],5,1.275,1,.2,[.3,3],[_c1,_c1,_c1,_c2],[0,1,0,1],.05,.05,"","",_flr]
+
+
+? (getPos _flr select 2) > _endAlt || (velocity _flr select 2) > 0 : goto "loop"
+
+? !isNull _flr : deleteVehicle _flr
+
+exit
+
+;flareAid.sqs by Raptorsaurus
+;v. 1.2 02/05/2011
+
+;Makes flares fall more slowly, burn longer and make a smoke trail. If a flare is launched during the
+;day, a drop item ("kouleSvetlo") of equivalent color will supplement the flare (since flares do
+;not show during the day).
+
+;This script requires the function: getAlt.sqf (included in the functions folder in the demo mission)

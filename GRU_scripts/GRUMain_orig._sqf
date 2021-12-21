@@ -1,0 +1,88 @@
+//
+// GRUMain.sqf by Sygsky at 08-DEC-2015. For Domination GRU tasks system.
+//
+
+#define arg(x) (_this select(x))
+#define argp(arr,x) ((arr)select(x))
+#define inc(x) ((x)=(x)+1)
+#define argopt(num,val) if ((count _this)<=(num))then{val}else{arg(num)}
+
+GRU_main_task_on = false;
+
+#define GRU_TASK_KIND 0
+#define GRU_TASK_PARAMS 1
+
+// mission offsets in common array
+#define GRU_MAIN_TASK 0
+#define GRU_SECONDARY_TASK 1
+#define GRU_OCCUPIED_TASK 2
+#define GRU_PERSONAL_TASK 3
+#define GRU_FIND_TASK 4
+
+// GRU comman message ids
+#define GRU_MSG_STOP_TASK 0
+#define GRU_MSG_START_TASK 1
+#define GRU_MSG_TASK_SOLVED 2
+#define GRU_MSG_TASK_FINISHED 3
+
+#define GRU_SECONDARY_MARKER_NAME (cur_mis_ind) (format["XMISSIONM%1",current_mission_index+1])
+
+//
+// Main task parameters:
+// _main_info = [[9349,5893,0],"Cayo", 210]; // array target_names from i_common.sqf
+//
+
+//
+// Secondary task parameters:
+// _sec_info = [50]; // radious of operation
+//
+
+GRU_tasks = [
+	[], // main target (towns)
+	[], // secondary target. In common case it is not valid as secondary missions are rarely situated at houses
+	[], // occupied town mission
+	[], // GRU task (pick-up agents, destroy anti-GLONASS device)
+//	[], // GRU addition secondary missions (destroy any carrier with old nuclear missile ...)
+	[]  // GRU task find mission (weapon in most)
+];
+
+#define GRU_getTask(ind) argp(GRU_tasks,ind)
+#define TASK_IS_EMPTY(tsk) (count(tsk)==0)
+#define TASK_IS_ACTIVE(tsk) (count(tsk)>0)
+
+// call as follow: _kind call GRU_stopTask;
+GRU_stopTask = {
+	if (!isServer) exitWith {};
+	private ["_kind"];
+	_kind = arg(GRU_TASK_KIND);
+	if ( _kind call GRU_taskActive ) then
+	{
+		// stop old task first
+		["GRU_msg", GRU_MSG_STOP_TASK, _kind] call XSendNetStartScriptClient;
+		sleep 4.37;
+	};
+};
+
+//
+//  call on server as follow: [... params ...] call GRU_startNewTask;
+//
+// params: [_task_kind, [_task params...]]
+//
+GRU_startNewTask = 
+{
+	if (!isServer) exitWith {};
+	private ["_kind"];
+	_kind = arg(GRU_TASK_KIND);
+	_kind call GRU_stopTask;
+	GRU_tasks set[_kind, arg(GRU_TASK_PARAMS)];
+	publicVariable "GRU_tasks";
+	["GRU_msg", GRU_MSG_START_TASK, _kind] call XSendNetStartScriptClient;
+	sleep 1.31416;
+};
+
+//
+// call as follow: _isActive = _task_id call GRU_taskActive;
+//
+GRU_taskActive = {
+	TASK_IS_ACTIVE(argp(GRU_tasks,_this))
+};

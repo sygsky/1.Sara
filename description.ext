@@ -1,0 +1,110 @@
+class CfgSounds
+{
+
+	sounds[] = { CarHorn, CarHorn2, HamveeHorn, BikeHorn, TruckHorn, TruckHorn2, SportCarHorn };
+	
+    class CarHorn
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\car_horn_v1", db+0, 1.0};
+        titles[] = { 0, };
+    };
+    class CarHorn2
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\carhorn", db+0, 1.0};
+        titles[] = { 0, };
+    };
+
+    class HamveeHorn
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\humvee_horn_v1", db+0, 1.0};
+        titles[] = { 0, };
+    };
+
+    class BikeHorn
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\bicycle_ring_v1", db+0, 1.0};
+        titles[] = { 0, };
+    };
+    class TruckHorn
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\truck_horn_v1", db+0, 1.0};
+        titles[] = { 0, };
+    };
+    class TruckHorn2
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\truck_horn_v2", db+0, 1.0};
+        titles[] = { 0, };
+    };
+    class SportCarHorn
+    {
+        name = ;
+        sound[] = {"\ca\Weapons\Data\Sound\Skoda_horn_v1", db+0, 1.0};
+        titles[] = { 0, };
+    };
+    class Recall
+    {
+        name = "Recall";
+        sound[] = {"\sound\Recall.ogg", db+10, 1.0};
+        titles[] = {};
+    };
+    class good_news
+    {
+        name = "good_news";
+        sound[] = {"\sound\good_news.ogg", db+10, 1.0};
+        titles[] = {};
+    };
+	class none
+	{
+		name = "none";
+		sound[] = {"", db-10, 1.0};
+		titles[] = {};
+	};
+
+	//
+	class lighthouse_1    {name = "Lighthouse 1"; sound[] = {\sound\Lighthouse_v01.ogg, db+10, 1.0}; titles[] = {};};    // Lighthouse 1
+	class lighthouse_2    {name = "Lighthouse 1"; sound[] = {\sound\Lighthouse_v02.ogg, db+10, 1.0}; titles[] = {};};    // Lighthouse 2
+	class lighthouse_3    {name = "Lighthouse 1"; sound[] = {\sound\Lighthouse_v03.ogg, db+10, 1.0}; titles[] = {};};    // Lighthouse 3
+	class lighthouse_4    {name = "Lighthouse 1"; sound[] = {\sound\Lighthouse_v04.ogg, db+10, 1.0}; titles[] = {};};    // Lighthouse 4
+	//
+
+};
+
+class CfgEnvSounds
+{
+	sounds[] = {Recall,none};
+	class none
+	{
+		name = "none";
+		sound[] = {"\sound\none.ogg", db-10, 1.0};
+		titles[] = {};
+	};
+	class Recall
+	{
+		name = "Recall";
+		sound[] = {"\sound\Recall.ogg", db+0, 1.0};
+		titles[] = {};
+	};
+};
+
+class CfgSfx
+{
+	sounds[] = {none};
+	class War
+	{
+		name = "none";
+		sound[] = {"\sound\none.ogg", db-10, 1.0};
+		titles[] = {};
+	};
+};
+
+
+//#include "dlg\define.hpp"
+#include "GRU_scripts\define.hpp"
+#include "GRU_scripts\myHelloWorld.hpp"
+#include "dlg\ResurrectDialog.hpp"
